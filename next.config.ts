@@ -2,7 +2,19 @@ import type { NextConfig } from "next";
 import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["better-sqlite3"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "loremflickr.com",
+      },
+      {
+        protocol: "https",
+        hostname: "live.staticflickr.com",
+      },
+    ],
+  },
 };
 
 export default withFlowbiteReact(nextConfig);
