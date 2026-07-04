@@ -194,6 +194,101 @@ export function getDb(): Database.Database {
   return db;
 }
 
+export interface PropertySearchParams {
+  q?: string;
+  type?: string;
+  neighborhood?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  minSqm?: number;
+  maxSqm?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface PropertySearchResult {
+  data: Property[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+}
+
+export function searchProperties(params: PropertySearchParams): PropertySearchResult {
+  const {
+    q,
+    type,
+    neighborhood,
+    bedrooms,
+    bathrooms,
+    minPrice,
+    maxPrice,
+    minSqm,
+    maxSqm,
+    page = 1,
+    limit = 20,
+  } = params;
+
+  const conditions: string[] = [];
+  const args: unknown[] = [];
+
+  if (q) {
+    conditions.push("(title LIKE ? OR description LIKE ?)");
+    args.push(`%${q}%`, `%${q}%`);
+  }
+  if (type) {
+    conditions.push("type = ?");
+    args.push(type);
+  }
+  if (neighborhood) {
+    conditions.push("neighborhood = ?");
+    args.push(neighborhood);
+  }
+  if (bedrooms !== undefined) {
+    conditions.push("bedrooms = ?");
+    args.push(bedrooms);
+  }
+  if (bathrooms !== undefined) {
+    conditions.push("bathrooms = ?");
+    args.push(bathrooms);
+  }
+  if (minPrice !== undefined) {
+    conditions.push("price >= ?");
+    args.push(minPrice);
+  }
+  if (maxPrice !== undefined) {
+    conditions.push("price <= ?");
+    args.push(maxPrice);
+  }
+  if (minSqm !== undefined) {
+    conditions.push("sqm >= ?");
+    args.push(minSqm);
+  }
+  if (maxSqm !== undefined) {
+    conditions.push("sqm <= ?");
+    args.push(maxSqm);
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const safeLimit = Math.min(Math.max(1, limit), 100);
+  const safePage = Math.max(1, page);
+  const offset = (safePage - 1) * safeLimit;
+
+  const db = getDb();
+  const total = (db.prepare(`SELECT COUNT(*) AS count FROM properties ${where}`).get(...args) as { count: number }).count;
+  const data = db.prepare(`SELECT * FROM properties ${where} ORDER BY createdAt DESC, id DESC LIMIT ? OFFSET ?`).all(...args, safeLimit, offset) as Property[];
+
+  return {
+    data,
+    total,
+    page: safePage,
+    limit: safeLimit,
+    pages: Math.ceil(total / safeLimit),
+  };
+}
+
 export function getAllProperties(): Property[] {
   return getDb()
     .prepare("SELECT * FROM properties ORDER BY createdAt DESC, id DESC")
