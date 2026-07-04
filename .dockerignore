@@ -1,0 +1,11 @@
+.git
+.github
+.next
+.flowbite-react
+node_modules
+npm-debug.log*
+Dockerfile
+.dockerignore
+.env*
+data
+tsconfig.tsbuildinfo

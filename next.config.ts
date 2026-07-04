@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import withFlowbiteReact from "flowbite-react/plugin/nextjs";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   serverExternalPackages: ["better-sqlite3"],
   images: {
     remotePatterns: [
