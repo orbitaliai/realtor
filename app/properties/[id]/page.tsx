@@ -1,7 +1,8 @@
-import { Badge, Button } from "flowbite-react";
+import { Badge } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { InterestForm } from "../../../components/interest-form";
 import { SiteNavbar } from "../../../components/site-navbar";
 import { formatPrice, getProperty, propertyImage } from "../../../lib/db";
 
@@ -63,7 +64,7 @@ export default async function PropertyPage({
             <p className="mb-6 leading-relaxed text-gray-600 dark:text-gray-300">
               {property.description}
             </p>
-            <Button>Contact agent</Button>
+            <InterestForm propertyId={property.id} />
           </div>
         </div>
       </section>

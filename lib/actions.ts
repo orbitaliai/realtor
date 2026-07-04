@@ -10,6 +10,7 @@ import {
   SESSION_TOKEN,
 } from "./auth";
 import {
+  createLead,
   createProperty,
   deleteProperty,
   updateProperty,
@@ -71,4 +72,20 @@ export async function deletePropertyAction(formData: FormData) {
   deleteProperty(Number(formData.get("id")));
   revalidatePath("/");
   revalidatePath("/admin");
+}
+
+export async function submitInterestAction(
+  _prev: { error?: string; success?: boolean },
+  formData: FormData,
+): Promise<{ error?: string; success?: boolean }> {
+  const propertyId = Number(formData.get("propertyId"));
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+
+  if (!name || !email) return { error: "Name and email are required." };
+
+  createLead(propertyId, name, email, phone);
+  revalidatePath("/admin/crm");
+  return { success: true };
 }

@@ -1,3 +1,42 @@
+# Public API
+
+---
+
+## Contacts
+
+### `POST /api/contacts`
+
+Submit an interest lead for a property. No authentication required.
+
+**Request body (JSON):**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `propertyId` | number | Yes | ID of the property |
+| `name` | string | Yes | Full name of the contact |
+| `email` | string | Yes | Email address |
+| `phone` | string | No | Phone number |
+
+**Example:**
+```json
+{
+  "propertyId": 1,
+  "name": "Maria García",
+  "email": "maria@example.com",
+  "phone": "+34 600 000 000"
+}
+```
+
+**Responses:**
+
+| Status | Body | Meaning |
+|---|---|---|
+| `201` | `{ "success": true }` | Lead created |
+| `400` | `{ "error": "..." }` | Missing / invalid field |
+| `404` | `{ "error": "Property not found" }` | Unknown `propertyId` |
+
+---
+
 # Properties API
 
 Public, no-auth REST API for searching properties.

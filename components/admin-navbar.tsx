@@ -11,6 +11,9 @@ export function AdminNavbar() {
         </span>
       </NavbarBrand>
       <div className="flex items-center gap-2">
+        <Button as={Link} href="/admin/crm" color="light" size="sm">
+          CRM
+        </Button>
         <Button as={Link} href="/" color="light" size="sm">
           View site
         </Button>

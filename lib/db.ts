@@ -158,6 +158,16 @@ function seedProperties(db: Database.Database) {
   insertAll();
 }
 
+export interface Lead {
+  id: number;
+  propertyId: number;
+  propertyTitle: string;
+  name: string;
+  email: string;
+  phone: string;
+  createdAt: string;
+}
+
 let db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
@@ -180,6 +190,14 @@ export function getDb(): Database.Database {
       bathrooms INTEGER NOT NULL,
       sqm INTEGER NOT NULL,
       type TEXT NOT NULL,
+      createdAt TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE TABLE IF NOT EXISTS leads (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      propertyId INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL DEFAULT '',
       createdAt TEXT NOT NULL DEFAULT (datetime('now'))
     )
   `);
@@ -343,6 +361,32 @@ export function propertyImage(
 ): string {
   const keywords = TYPE_KEYWORDS[type] ?? "house,real,estate";
   return `https://loremflickr.com/${width}/${height}/${keywords}?lock=${id}`;
+}
+
+export function createLead(propertyId: number, name: string, email: string, phone: string): void {
+  getDb()
+    .prepare("INSERT INTO leads (propertyId, name, email, phone) VALUES (?, ?, ?, ?)")
+    .run(propertyId, name, email, phone);
+}
+
+export function getLeadsForProperty(propertyId: number): Lead[] {
+  return getDb()
+    .prepare(
+      `SELECT l.*, p.title AS propertyTitle
+       FROM leads l JOIN properties p ON p.id = l.propertyId
+       WHERE l.propertyId = ? ORDER BY l.createdAt DESC`,
+    )
+    .all(propertyId) as Lead[];
+}
+
+export function getAllLeads(): Lead[] {
+  return getDb()
+    .prepare(
+      `SELECT l.*, p.title AS propertyTitle
+       FROM leads l JOIN properties p ON p.id = l.propertyId
+       ORDER BY l.createdAt DESC`,
+    )
+    .all() as Lead[];
 }
 
 export function formatPrice(price: number): string {
